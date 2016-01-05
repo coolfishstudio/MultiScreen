@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>跨屏互动</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+        window.onload = function () {
+            //加载socket
+            var socket = io.connect();
+            //init
+            socket.emit('init', {type: 'show'});
+            //有玩家加入
+            socket.on('createHandle', function (data) {
+                console.log('有玩家加入,编号：', data.id);
+            });
+            //有玩家离开
+            socket.on('leaveHandle', function (data) {
+                console.log('有玩家离开,编号：', data.id);
+            });
+            //有玩家进行了操作
+            socket.on('action', function (data) {
+                console.log('有玩家进行了操作,玩家编号：', data.id, ',操作：', data.action);
+            });
+        };
+        </script>
+    </head>
+    <body>
+        123123
+    </body>
+</html>
