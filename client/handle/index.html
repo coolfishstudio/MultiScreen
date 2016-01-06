@@ -21,15 +21,6 @@
             var socket = io.connect();
             //init
             socket.emit('init', {type: 'handle'});
-            //action
-            // var leftBtn = document.getElementById('leftBtn');
-            // var rightBtn = document.getElementById('rightBtn');
-            // leftBtn.onclick = function () {
-            //     socket.emit('action', {action: 'left'});
-            // };
-            // rightBtn.onclick = function () {
-            //     socket.emit('action', {action: 'right'});
-            // };
             // 虚拟手柄
             var rocker = nipplejs.create({
                 zone: document.getElementById('rocker'),
@@ -39,10 +30,24 @@
                 size: 150
             });
             rocker.on('move', function (evt, data) {
-                console.log(data);
+                socket.emit('action', {action: data.direction.angle});
+            }).on('dir', function (evt, data) {
                 socket.emit('action', {action: data.direction.angle});
             });
 
+            var oBtnA = document.getElementById('btn_a');
+            var oBtnB = document.getElementById('btn_b');
+
+            oBtnA.addEventListener('touchstart', touchStartA, false);
+            oBtnB.addEventListener('touchstart', touchStartB, false);
+            function touchStartA (event) {
+                event.preventDefault();
+                socket.emit('action', {action: 'btn_a'});
+            }
+            function touchStartB (event) {
+                event.preventDefault();
+                socket.emit('action', {action: 'btn_b'});
+            }
 
             //微信浏览器禁止页面下拉查看网址
             // var overscroll = function(el) {
@@ -96,7 +101,6 @@
             color: #fff;
             text-align: center;
             line-height: 60px;
-            display: none;
         }
         .btn.btn_a{
             right: 22%; 
@@ -120,9 +124,9 @@
     <body>
         <div id="rocker">      
         </div>
-        <div class="btn btn_a">A</div>
-        <div class="btn btn_b">B</div>
-        <div class="btn btn_c">C</div>
-        <div class="btn btn_d">D</div>
+        <div id="btn_a" class="btn btn_a">A</div>
+        <div id="btn_b" class="btn btn_b">B</div>
+        <!-- <div class="btn btn_c">C</div> -->
+        <!-- <div class="btn btn_d">D</div> -->
     </body>
 </html>

@@ -2,14 +2,38 @@
 <html>
     <head>
         <title>跨屏互动</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
         <script src="/socket.io/socket.io.js"></script>
+        <style>
+        *{margin: 0;padding: 0;}
+        html,body{background-color: #2768AC;height: 100%;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;position: relative;overflow: hidden;}
+        #gameContainer{margin-right: 200px;height: 100%;}
+        #rightPanel{position: absolute;right: 0;top: 0;bottom: 0;width: 200px;background-color: #fff;}
+        #qrPanel{width: 100%; text-align: center;position: absolute;height: 200px;bottom: 0;border-top: 1px solid #333;box-sizing: border-box;padding: 30px;}
+        #msgPanel{font-size: 12px;overflow:hidden;box-sizing: border-box;height: 100%;padding-bottom: 200px;}
+        #msg{height: 100%;overflow-y: auto;padding: 10px;box-sizing: border-box;}
+        #gamePanel{width: 100%;height: 100%;}
+        </style>
+        
         <script>
         window.onload = function () {
             //加载socket
             var socket = io.connect();
+            //游戏面板
+            var oBox = document.getElementById('gamePanel');
+            //获取屏幕的宽高 设定游戏面板的宽高
+            var _w = document.body.clientWidth - 200;
+            var _h = document.body.clientHeight;
+            var _players = [];//用户数据
+            console.log(_w, _h);
+            oBox.width = _w;
+            oBox.height = _h;
+            var gd = oBox.getContext('2d');//用来绘制元素
             //init
-            socket.emit('init', {type: 'show'});
-            //二维码
+            socket.emit('init', {type: 'show', screenWidth: oBox.width, screenHeight: oBox.height});
+            //二维码面板
             socket.on('createScreenQrcode', function (data) {
                 var img;
                 (img = new Image()).src='/qr/' + data.screenID;
@@ -19,31 +43,75 @@
             //有玩家加入
             socket.on('createHandle', function (data) {
                 console.log('有玩家加入,编号：', data.id);
+                // createMsg('有玩家加入,编号：' + data.id);
+                // drawPlayer(data.id, data.player);
+                _players = data.data;
             });
             //有玩家离开
             socket.on('leaveHandle', function (data) {
                 console.log('有玩家离开,编号：', data.id);
+                // createMsg('有玩家离开,编号：' + data.id);
+                _players = data.data;
             });
             //有玩家进行了操作
             socket.on('action', function (data) {
-                console.log('有玩家进行了操作,玩家编号：', data.id, ',操作：', data.action);
+                console.log('有玩家进行了操作,玩家编号：' + data.id + ',操作：' + data.action);
+                _players = data.data;
             });
+
+            //服务器关闭
+            socket.on('disconnect', function () {
+                console.log('服务器关闭');
+            });
+
+            //重新启动服务器
+            socket.on('reconnect', function () {
+                console.log('服务器关闭');
+            });
+
+            //信息面板
+            var oMsg = document.getElementById('msg');
+            function createMsg (msg) {
+                oMsg.innerHTML += '<div>[' + getTime() + ']<br />' + msg + '</div><br />';
+                scrollDown();
+            }
+            function getTime (){
+                var date = new Date();
+                var time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes()) + ":" + (date.getSeconds() < 10 ? ('0' + date.getSeconds()) : date.getSeconds());
+                return time;
+            }
+            function scrollDown () {
+                oMsg.scrollTop = oMsg.scrollHeight;
+            }
+
+            //游戏部分
+            function drawPlayer (player) {
+                gd.beginPath();
+                gd.arc(player.x, player.y, player.size, 0, Math.PI * 2, true);
+                gd.closePath();
+                gd.fillStyle = player.color;
+                gd.fill();
+            }
+            //动画
+            setInterval(function () {
+                //清除画布
+                gd.clearRect(0, 0, oBox.width, oBox.height);
+                for (var i = 0; i < _players.length; i++) {
+                    drawPlayer(_players[i]);
+                }
+            }, 16);
         };
         </script>
-        <style>
-        *{margin: 0;padding: 0;}
-        html,body{background-color: #2768AC;height: 100%;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;position: relative;}
-        #gameContainer{margin-right: 200px;}
-        #rightPanel{position: absolute;right: 0;top: 0;bottom: 0;width: 200px;background-color: #fff;}
-        #qrPanel{width: 100%; text-align: center;position: absolute;height: 200px;bottom: 0;border-top: 1px solid #333;box-sizing: border-box;padding: 30px;}
-        </style>
+        
     </head>
     <body>
         <div id="gameContainer">
-            gamepanel
+            <canvas id="gamePanel" width="800" height="400"></canvas>
         </div>
         <div id="rightPanel">
-            <div id="msgPanel">msg</div>
+            <div id="msgPanel">
+                <div id="msg"></div>
+            </div>
             <div id="qrPanel"></div>
         </div>
     </body>

@@ -47,7 +47,6 @@ module.exports.generateUUID = function (length) {
  */
 module.exports.getCookie = function (key, strCookie) {
     strCookie += '; ';
-    console.log(strCookie);
     var arrCookie = strCookie.split('; ');
     for (var i = 0; i < arrCookie.length; i++) {
         var arr = arrCookie[i].split('=');
