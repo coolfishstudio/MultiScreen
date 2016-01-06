@@ -4,8 +4,9 @@
         <title>跨屏互动</title>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
         <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/handle/lib/nipplejs.min.js"></script>
         <script>
         window.onload = function () {
             var screenID = '';
@@ -19,28 +20,109 @@
             //加载socket
             var socket = io.connect();
             //init
-            socket.emit('init', {type: 'handle', screenID: screenID});
+            socket.emit('init', {type: 'handle'});
             //action
-            var leftBtn = document.getElementById('leftBtn');
-            var rightBtn = document.getElementById('rightBtn');
-            leftBtn.onclick = function () {
-                socket.emit('action', {action: 'left', screenID: screenID});
-            };
-            rightBtn.onclick = function () {
-                socket.emit('action', {action: 'right', screenID: screenID});
-            };
+            // var leftBtn = document.getElementById('leftBtn');
+            // var rightBtn = document.getElementById('rightBtn');
+            // leftBtn.onclick = function () {
+            //     socket.emit('action', {action: 'left'});
+            // };
+            // rightBtn.onclick = function () {
+            //     socket.emit('action', {action: 'right'});
+            // };
+            // 虚拟手柄
+            var rocker = nipplejs.create({
+                zone: document.getElementById('rocker'),
+                mode: 'static',
+                position: {left: '25%', top: '55%'},
+                color: '#000',
+                size: 150
+            });
+            rocker.on('move', function (evt, data) {
+                console.log(data);
+                socket.emit('action', {action: data.direction.angle});
+            });
+
+
+            //微信浏览器禁止页面下拉查看网址
+            // var overscroll = function(el) {
+            //   el.addEventListener('touchstart', function() {
+            //     var top = el.scrollTop
+            //       , totalScroll = el.scrollHeight
+            //       , currentScroll = top + el.offsetHeight;
+            //     //If we're at the top or the bottom of the containers
+            //     //scroll, push up or down one pixel.
+            //     //
+            //     //this prevents the scroll from "passing through" to
+            //     //the body.
+            //     if(top === 0) {
+            //       el.scrollTop = 1;
+            //     } else if(currentScroll === totalScroll) {
+            //       el.scrollTop = top - 1;
+            //     }
+            //   });
+            //   el.addEventListener('touchmove', function(evt) {
+            //     //if the content is actually scrollable, i.e. the content is long enough
+            //     //that scrolling can occur
+            //     if(el.offsetHeight < el.scrollHeight)
+            //       evt._isScroller = true;
+            //   });
+            // }
+            // overscroll(document.querySelector('.scroll'));
+            // document.body.addEventListener('touchmove', function(evt) {
+            //   //In this case, the default behavior is scrolling the body, which
+            //   //would result in an overflow.  Since we don't want that, we preventDefault.
+            //   if(!evt._isScroller) {
+            //     evt.preventDefault();
+            //   }
+            // });
         };
         </script>
         <style>
         *{margin: 0;padding: 0;}
-        div{text-align: center;margin-top: 20%;}
-        button{width: 140px;height:80px;margin-right: 20px;}
+        html,body{background-color: #2768AC;height: 100%;}
+        #rocker{height: 100%;width: 100%;}
+        .btn{
+            width: 60px; 
+            height: 60px; 
+            position: absolute; 
+            display: block; 
+            margin-left: -30px; 
+            margin-top: -30px; 
+            opacity: 0.3; 
+            border-radius: 50%; 
+            transition: none; 
+            background: rgb(0, 0, 0);
+            color: #fff;
+            text-align: center;
+            line-height: 60px;
+            display: none;
+        }
+        .btn.btn_a{
+            right: 22%; 
+            top: 40%; 
+        }
+        .btn.btn_b{
+            right: 10%; 
+            top: 35%; 
+        }
+        .btn.btn_c{
+            right: 22%; 
+            top: 65%; 
+        }
+        .btn.btn_d{
+            right: 10%; 
+            top: 60%; 
+        }
+        
         </style>
     </head>
     <body>
-        <div>
-            <button id="leftBtn">左</button>
-            <button id="rightBtn">右</button>
+        <div id="rocker">      
         </div>
+        <div class="btn btn_a">A</div>
+        <div class="btn btn_b">B</div>
+        <div class="btn btn_c">C</div>
+        <div class="btn btn_d">D</div>
     </body>
 </html>

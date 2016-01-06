@@ -9,6 +9,13 @@
             var socket = io.connect();
             //init
             socket.emit('init', {type: 'show'});
+            //二维码
+            socket.on('createScreenQrcode', function (data) {
+                var img;
+                (img = new Image()).src='/qr/' + data.screenID;
+                document.getElementById('qrPanel').appendChild(img);
+            });
+            //获取房间二维码
             //有玩家加入
             socket.on('createHandle', function (data) {
                 console.log('有玩家加入,编号：', data.id);
@@ -23,8 +30,21 @@
             });
         };
         </script>
+        <style>
+        *{margin: 0;padding: 0;}
+        html,body{background-color: #2768AC;height: 100%;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;position: relative;}
+        #gameContainer{margin-right: 200px;}
+        #rightPanel{position: absolute;right: 0;top: 0;bottom: 0;width: 200px;background-color: #fff;}
+        #qrPanel{width: 100%; text-align: center;position: absolute;height: 200px;bottom: 0;border-top: 1px solid #333;box-sizing: border-box;padding: 30px;}
+        </style>
     </head>
     <body>
-        123123
+        <div id="gameContainer">
+            gamepanel
+        </div>
+        <div id="rightPanel">
+            <div id="msgPanel">msg</div>
+            <div id="qrPanel"></div>
+        </div>
     </body>
 </html>
