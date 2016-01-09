@@ -3,7 +3,7 @@ var express = require('express'),
     path = require('path');
 
 var port = 9302;
-var host = 'http://10.10.16.160:9302/';
+var host = 'http://10.10.16.59:9302/';
 
 var helper = require('./server/helper'),
     Player = require('./server/Player');
@@ -66,16 +66,16 @@ io.sockets.on('connection', function (socket) {
         for (var i = 0; i < rooms[screenID].data.length; i++) {
             if (rooms[screenID].data[i].id === socket.id) {
                 if (obj.action === 'left') {
-                    rooms[screenID].data[i].x -= 1;
+                    rooms[screenID].data[i].x -= 3;
                 }
                 if (obj.action === 'right') {
-                    rooms[screenID].data[i].x += 1;
+                    rooms[screenID].data[i].x += 3;
                 }
                 if (obj.action === 'up') {
-                    rooms[screenID].data[i].y -= 1;
+                    rooms[screenID].data[i].y -= 3;
                 }
                 if (obj.action === 'down') {
-                    rooms[screenID].data[i].y += 1;
+                    rooms[screenID].data[i].y += 3;
                 }
                 if (obj.action === 'btn_a' && rooms[screenID].data[i].size < 100) {
                     rooms[screenID].data[i].size += 1;
